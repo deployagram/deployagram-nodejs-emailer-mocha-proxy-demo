@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import { useDeployagram } from './support/deployagram.js';
 import { EmailerApplication } from '../src/emailer-application.js';
-import { APP_URL, EMAILER_EMAIL_PATH } from './environment.js';
+import { EMAILER_EMAIL_PATH, PROXY_CONFIG } from './environment.js';
 
 const MALFORMED_JSON = '{"email": "eddie@eddie.com"';
 
 describe('RejectInvalidEmailRequestTest', () => {
+  const deployagram = useDeployagram({ name: 'RejectInvalidEmailRequestTest', proxyConfig: PROXY_CONFIG });
+
   let application: EmailerApplication;
   let response: Response;
 
@@ -30,7 +33,7 @@ describe('RejectInvalidEmailRequestTest', () => {
   });
 
   async function whenMalformedJsonIsPosted(): Promise<void> {
-    response = await fetch(APP_URL + EMAILER_EMAIL_PATH, {
+    response = await fetch(deployagram.proxyUrl + EMAILER_EMAIL_PATH, {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       body: MALFORMED_JSON,
@@ -38,7 +41,7 @@ describe('RejectInvalidEmailRequestTest', () => {
   }
 
   async function whenTheEmailPathIsRequestedWithGet(): Promise<void> {
-    response = await fetch(APP_URL + EMAILER_EMAIL_PATH, {
+    response = await fetch(deployagram.proxyUrl + EMAILER_EMAIL_PATH, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     });

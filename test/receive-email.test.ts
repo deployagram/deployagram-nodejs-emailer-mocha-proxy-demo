@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import { useDeployagram } from './support/deployagram.js';
 import { EmailerApplication } from '../src/emailer-application.js';
-import { APP_URL, EMAILER_EMAIL_PATH } from './environment.js';
+import { EMAILER_EMAIL_PATH, PROXY_CONFIG } from './environment.js';
 
 const EMAIL_JSON = `{
   "email": "eddie@eddie.com",
@@ -9,6 +10,8 @@ const EMAIL_JSON = `{
 }`;
 
 describe('ReceiveEmailTest', () => {
+  const deployagram = useDeployagram({ name: 'ReceiveEmailTest', proxyConfig: PROXY_CONFIG });
+
   let application: EmailerApplication;
   let response: Response;
 
@@ -29,7 +32,7 @@ describe('ReceiveEmailTest', () => {
   });
 
   async function whenTheEmailIsPosted(): Promise<void> {
-    response = await fetch(APP_URL + EMAILER_EMAIL_PATH, {
+    response = await fetch(deployagram.proxyUrl + EMAILER_EMAIL_PATH, {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       body: EMAIL_JSON,
